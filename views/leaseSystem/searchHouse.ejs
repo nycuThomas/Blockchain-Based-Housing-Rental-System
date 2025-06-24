@@ -1,0 +1,122 @@
+<%- include('partials/header'); %>
+
+    <body>
+        <!-- choose condition to show-->
+        <!-- <div class="container mt-3">
+            <form style="margin-block: 10px" method="dialog">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <div class="input-group mt-10">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">City</span>
+                            </div>
+                            <select class="form-select">
+                                <option selected>open</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group mt-10">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">Price</span>
+                            </div>
+                            <select class="form-select">
+                                <option selected>rent</option>
+                                <option value="1">6000</option>
+                                <option value="2">10000</option>
+                                <option value="3">20000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div> -->
+        <!-- list all searching house -->
+        <div class="container mt-3">
+            <h2 class="font-weight-bold">Search Listing House</h2>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <!-- <th scope="col">Picture</th> -->
+                        <th scope="col">House address</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Uploader Pubkey</th>
+                        <th scope="col">Watch Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- <tr>
+                        <td scope="row">example address</td>
+                        <td>example price</td>
+                        <td>example uploader</td>
+                        <td>example Details</td>
+                    </tr> -->
+                    <% for (let index=0; index < houseList.length; index++) {%>
+                        <tr>
+                            <!-- <th scope="row">example Picture</th> -->
+                            <td scope="row">
+                                <input type="text" id="estateAddress-<%= index %>" name="estateAddress-<%= index %>"
+                                    value="<%=houseList[index].estateAddress%>" hidden>
+                                <%=houseList[index].estateAddress%>
+                            </td>
+                            <td>
+                                <%=houseList[index].rent%>
+                            </td>
+                            <td>
+                                <input type="text" id="uploader-<%= index %>" name="uploader-<%= index %>"
+                                    value="<%=houseList[index].uploader%>" readonly>
+                            </td>
+                            <td><button class="btn btn-primary" id="details-<%= index %>">details</button></td>
+                        </tr>
+                        <%} %>
+                </tbody>
+            </table>
+        </div>
+        <!-- <div>
+            <form action="/leaseSystem/searchHouse/test/" method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Owner Address</span>
+                    <input type="text" class="form-control" id="owner" name="owner" value="">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">House Address</span>
+                    <input type="text" class="form-control" id="addr" name="addr" value="">
+                </div>
+                <div class="col"><button class="btn btn-primary" type="submit" id="save">save</button></div>
+            </form>
+        </div> -->
+    </body>
+    <script>
+        var houseList = JSON.parse('<%- JSON.stringify(houseList) %>');
+        async function buildListener() {
+            for (let i = 0; i < houseList.length; i++) {
+
+                $(`#details-${i}`).on('click', async function (e) {
+                    let houseAddress = $(`#estateAddress-${i}`).val();
+                    let uploaderAddress = $(`#uploader-${i}`).val();
+                    $.ajax({
+                        url: '/leaseSystem/searchHouse/leasePage',
+                        data: {
+                            "addr": houseAddress,
+                            "uploader": uploaderAddress
+                        },
+                        type: 'post'
+                    }).then((res) => {
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+
+            }
+
+        }
+        buildListener();
+    </script>
+    <%- include('partials/footer'); %>

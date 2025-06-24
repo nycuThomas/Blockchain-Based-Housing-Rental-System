@@ -1,0 +1,144 @@
+<%- include('../partials/header'); %>
+
+    <body>
+
+
+        <%if(!user.agent) {%>
+            <div class="row md-3 mt-3">
+                <div class="col-md-8 center-block offset-md-2">
+                    <div style="margin-top: 10px">
+                        <a href="/leaseSystem/">back</a>
+                    </div>
+                    <div class="card text-center" style="margin:auto">
+                        <div class="card-header">
+                            <h4 style="margin:auto" class="font-weight-bold">Agent Profile</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group mt-2">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Address</span>
+                                </div>
+                                <input class="form-control" name="userAddress" id="userAddress" type="text"
+                                    value="<%=address %>" readonly>
+                            </div>
+                            <div class="input-group mt-2">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">agent licence</span>
+                                </div>
+                                <input class="form-control" name="userAddress" id="userAddress" type="text"
+                                    value="<%=user.agent %>" readonly>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <a href="/leaseSystem/certification" class="btn btn-secondary btn-lg btn-block mt-2" style="
+                        width: 250px;
+                        height: 40px;
+                        line-height: 20px;
+                        text-align: center;">Get Certificate</a>
+                        </div>
+                        <div class="card-body">
+                            <button id="getCert" class="btn btn-secondary btn-lg btn-block mt-2" style="
+                        width: 250px;
+                        height: 40px;
+                        line-height: 20px;
+                        text-align: center;">Check Agent Licence
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } else{%>
+                <!-- edit profile -->
+                <div class="container mt-3">
+                    <div style="margin-top: 10px">
+                        <a href="/leaseSystem/">back</a>
+                    </div>
+                    <div class="col-md-5 center-block" style="float: none; margin: auto">
+
+                        <div class="card-header">
+                            <h4 style="margin:auto" class="font-weight-bold">Agent Profile</h4>
+                        </div>
+                        <div style="margin-top: 10px" class="card text-center">
+                            <form method="post" action="/leaseSystem/agent/profileUpdate">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Nick Name</span>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="<%=user.name%>">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Address</span>
+                                    <input type="text" class="form-control" id="userAddress" name="userAddress"
+                                        value="<%=address%>" readonly>
+                                </div>
+                                <!-- <div class="input-group mb-3">
+                                    <span class="input-group-text">Agency</span>
+                                    <input type="text" class="form-control" id="Agency" name="Agency"
+                                        value="">
+                                </div> -->
+                                <div class="input-group mb-3; row">
+                                    <div class="col"><button class="btn btn-primary" type="submit"
+                                            id="save">save</button></div>
+                                    <div class="col"><button class="btn btn-primary" type="reset">reset</button></div>
+                                </div>
+                            </form>
+
+                            <div class="card-body">
+                                <a id="leaseHouse" class="btn btn-secondary btn-lg btn-block mt-2" style="
+                                width: 450px;
+                                height: 40px;
+                                line-height: 20px;
+                                text-align: center;
+                            " href="/leaseSystem/agent/manageAgreement">
+                                    Manage Agreement
+                                </a>
+                            </div>
+                            <!-- <div class="card-body">
+                            <a id="leaseHouse" class="btn btn-secondary btn-lg btn-block mt-2" style="
+                                width: 450px;
+                                height: 40px;
+                                line-height: 20px;
+                                text-align: center;
+                            " href="/leaseSystem/agent/manageEstate">
+                                Manage Estate
+                            </a>
+                        </div> -->
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- house manage link -->
+
+                <!-- lease contract link -->
+
+                <% } %>
+    </body>
+
+    <script>
+        async function buildListener() {
+            $('#getCert').on('click', async function (e) {
+                let userAddress = $("#userAddress").val();
+                let data;
+                data = {
+                    "userAddress": userAddress,
+                }
+
+                $.ajax({
+                    url: '/leaseSystem/agent/getCert',
+                    data: data,
+                    type: 'post',
+                    success: function (res) {
+                        alert(res.msg);
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        console.log("error");
+                        alert(err);
+                    }
+                });
+            })
+        }
+        buildListener();
+    </script>
+
+    <%- include('../partials/footer'); %>

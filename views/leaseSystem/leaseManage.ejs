@@ -1,0 +1,262 @@
+<%- include('./partials/header'); %>
+
+    <body>
+        <div class="container mt-3">
+            <div style="margin-top: 10px">
+                <a href="/leaseSystem">back</a>
+            </div>
+        </div>
+        <div class="col center-block" style="float: none; margin: auto">
+            <div style="margin-top: 10px" class="card text-center">
+                <div style="font-size: 1.5rem; font-weight: bold" class="card-header">
+                    favorite
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">owner address</th>
+                            <th scope="col">agent address</th>
+                            <th scope="col">house address</th>
+                            <th scope="col">details</th>
+                            <th scope="col">sign</th>
+                            <!-- <th scope="col">acc</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let index=0; index < favorite.length; index++) {%>
+                            <tr>
+                                <td>
+                                    <input type="text" id="owner-<%= index %>" name="owner-<%= index %>"
+                                        value="<%=favorite[index].ownerAddress%>" readonly>
+                                </td>
+                                <td>
+                                    <input type="text" id="agent-<%= index %>" name="agent-<%= index %>"
+                                        value="<%=favorite[index].agentAddress%>" readonly>
+                                </td>
+                                <td>
+                                    <input type="text" id="houseAddress-<%= index %>" name="houseAddress-<%= index %>"
+                                        value="<%=favorite[index].houseAddress%>" readonly>
+                                </td>
+                                <td><button class="btn btn-primary" id="details-<%= index %>">details</button></td>
+                                <td><button class="btn btn-primary" id="signing-<%= index %>">view and sign
+                                        agreement</button></td>
+                                <!-- <td><button class="btn btn-primary" id="upload-<= index %>">acc</button></td> -->
+                            </tr>
+                            <%} %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="col center-block" style="float: none; margin: auto">
+            <div style="margin-top: 10px" class="card text-center">
+                <div style="font-size: 1.5rem; font-weight: bold" class="card-header">
+                    Your on leasing house
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">House address</th>
+                            <th scope="col">Owner address</th>
+                            <th scope="col">Uploader Pubkey</th>
+                            <th scope="col">Person Want to Sign</th>
+                            <th scope="col">Create Agreement</th>
+                            <th scope="col">Condition Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let index=0; index < rentData.length; index++) { let signIndex=-1;%>
+                            <tr>
+                                <td>
+                                    <input type="text" id="estateAddress-<%= index %>" name="estateAddress-<%= index %>"
+                                        value="<%=rentData[index].estateAddress%>" readonly>
+                                </td>
+                                <td>
+                                    <input type="text" value="<%=rentData[index].owner%>" readonly>
+                                </td>
+                                <td>
+                                    <input type="text" id="uploaderKey-<%= index %>" name="uploaderKey-<%= index %>"
+                                        value="<%=rentData[index].uploader%>" readonly>
+                                </td>
+                                <td>
+                                    <select name="signer-<%= index %>" id="signer-<%= index %>">
+                                        <!-- if agreement is created, signer will fixed to that selected person -->
+                                        <%for (let i=0; i < signerList.length; i++) {
+                                            if(signerList[i].houseAddress==rentData[index].estateAddress) { if
+                                            (signerList[i].agreement==true) { signIndex=i; } } } %>
+
+                                            <% if(signIndex==-1){ %>
+                                                <option value="" selected>---Select a Person to Sign---</option>
+                                                <%for (let i=0; i < signerList.length; i++) {
+                                                    if(signerList[i].houseAddress==rentData[index].estateAddress){%>
+                                                    <option value="<%= signerList[i].address %>">
+                                                        <%= signerList[i].address %>
+                                                    </option>
+                                                    <%} }} else{ %>
+                                                        <option value="<%= signerList[signIndex].address %>" selected>
+                                                            <%= signerList[signIndex].address %>
+                                                        </option>
+                                                        <%}%>
+                                    </select>
+                                </td>
+                                <% if(signIndex==-1){ %>
+                                    <td><button class="btn btn-primary" id="createAgreement-<%= index %>">Create
+                                            Agreement</button></td>
+                                    <%} else{ %>
+                                        <td><button class="btn btn-primary" id="viewAgreement-<%= index %>">View
+                                                Agreement</button></td>
+                                        <%}%>
+
+                                            <td><button class="btn btn-primary" id="request-<%= index %>">Condition Review</button>
+                                            </td>
+                            </tr>
+                            <%} %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- </div> -->
+    </body>
+    <script>
+        var address = '<%= address %>';
+        var favorite = JSON.parse('<%- JSON.stringify(favorite) %>');
+        var signerList = JSON.parse('<%- JSON.stringify(signerList) %>');
+        var rentData = JSON.parse('<%- JSON.stringify(rentData) %>');
+        async function buildListener() {
+            for (let i = 0; i < favorite.length; i++) {
+
+                $(`#details-${i}`).on('click', async function (e) {
+                    let houseAddress = $(`#houseAddress-${i}`).val();
+                    let agentAddress = $(`#agent-${i}`).val();
+                    let ownerAddress = $(`#owner-${i}`).val();
+                    $.ajax({
+                        url: '/leaseSystem/leaseManage/leasePage',
+                        data: {
+                            "agent": agentAddress,
+                            "addr": houseAddress,
+                            "owner": ownerAddress
+                        },
+                        type: 'post'
+                    }).then((res) => {
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+
+                $(`#signing-${i}`).on('click', async function (e) {
+                    let houseAddress = $(`#houseAddress-${i}`).val();
+                    let ownerAddress = $(`#owner-${i}`).val();
+                    let result = await $.ajax({
+                        url: '/leaseSystem/agreement/agreementPage',
+                        data: {
+                            ownerAddress: ownerAddress,
+                            tenantAddress: address,
+                            houseAddress: houseAddress
+                        },
+                        type: 'post'
+                    }).then((res) => {
+                        // console.log(res);
+                        if (res.msg) {
+                            alert(res.msg);
+                            return;
+                        }
+                        else if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+
+            }
+
+            for (let index = 0; index < rentData.length; index++) {
+                $(`#createAgreement-${index}`).on('click', async function (e) {
+                    let estateAddress = $(`#estateAddress-${index}`).val();
+                    let uploaderKey = $(`#uploaderKey-${index}`).val();
+                    let signer = $(`#signer-${index}`).val();
+                    if (signer == '') {
+                        alert("please select a person");
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '/leaseSystem/leaseManage/agreement',
+                        data: {
+                            "signer": signer,
+                            "estateAddress": estateAddress,
+                            "uploaderKey": uploaderKey
+                        },
+                        type: 'post'
+                    }).then((res) => {
+                        if (res.msg) {
+                            alert(res.msg);
+                            return;
+                        }
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+
+                $(`#viewAgreement-${index}`).on('click', async function (e) {
+                    let estateAddress = $(`#estateAddress-${index}`).val();
+                    let signer = $(`#signer-${index}`).val();
+                    $.ajax({
+                        type: 'POST',
+                        url: '/leaseSystem/agreement/agreementPage',
+                        dataType: 'json',
+                        data: {
+                            ownerAddress: address,
+                            tenantAddress: signer,
+                            houseAddress: estateAddress
+                        },
+                        success: function (res) {
+                            console.log('success');
+                            if (res.url) {
+                                window.location.href = res.url;
+                            }
+                        },
+                        fail: function (xhr, ajaxOptions, thrownError) {
+                            console.log('fail');
+                            reject(false);
+                        },
+                    });
+                })
+
+                $(`#request-${index}`).on('click', async function (e) {
+                    let estateAddress = $(`#estateAddress-${index}`).val();
+                    let signer = $(`#signer-${index}`).val();
+                    if (signer == '') {
+                        alert("please select a person");
+                        return;
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '/leaseSystem/dataSharing/request',
+                        dataType: 'json',
+                        data: {
+                            ownerAddress: address,
+                            tenantAddress: signer,
+                            houseAddress: estateAddress,
+                        },
+                        success: function (res) {
+                            console.log('success');
+                            console.log(res);
+
+                            if (res.url) {
+                                window.location.href = res.url;
+                            }
+                        },
+                        fail: function (xhr, ajaxOptions, thrownError) {
+                            console.log('fail');
+                            reject(false);
+                        },
+                    });
+                })
+            }
+
+        }
+        buildListener();
+    </script>
+    <%- include('./partials/footer'); %>

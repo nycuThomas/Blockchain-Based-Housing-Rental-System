@@ -1,0 +1,126 @@
+<%- include('partials/header'); %>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div
+                class="col-md-5 center-block"
+                style="float: none; margin: auto"
+            >
+                <div style="margin-top: 10px" class="card text-center">
+                    <div
+                        style="font-size: 1.5rem; font-weight: bold"
+                        class="card-header"
+                    >
+                        Login
+                    </div>
+                    <div style="margin-top: 20px">
+                        <iconify-icon
+                            icon="logos:metamask-icon"
+                            width="200"
+                            style="margin: auto"
+                        ></iconify-icon>
+                    </div>
+                    <div class="card-body">
+                        <button
+                            id="loginWithMetamask"
+                            class="btn btn-secondary btn-lg btn-block mt-2"
+                            style="
+                                width: 450px;
+                                height: 40px;
+                                line-height: 1px;
+                                text-align: center;
+                            "
+                        >
+                            login with metamask
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var account;
+    var require_signature = '<%= require_signature  %>';
+    var contract_address = '<%= contract_address  %>';
+    const emptyAddress =
+        '0x0000000000000000000000000000000000000000000000000000000000000000';
+
+    //listener
+    async function buildListener() {
+        window.ethereum.on('accountsChanged', function (accounts) {
+            account = accounts[0];
+        });
+        $('#loginWithMetamask').on('click', async function (e) {
+            $.getJSON('../../contracts/IdentityManager.json', function (data) {
+                // This code will be executed when the request succeeds
+                let contractInstance = new web3.eth.Contract(
+                    data.output.abi,
+                    contract_address
+                );
+
+                let identity, userType;
+                contractInstance.methods
+                    .getId()
+                    .call({ from: account })
+                    .then((result) => {
+                        if (result === emptyAddress || !result) {
+                            return Promise.reject(
+                                'This account has not been bound yet!'
+                            );
+                        } else {
+                            identity = result;
+                            return contractInstance.methods
+                                .getUserType()
+                                .call({ from: account });
+                        }
+                    })
+                    .then((result) => {
+                        userType = result;
+                        if (userType !== '0') {
+                            return Promise.reject(
+                                'Only natural person can log in'
+                            );
+                        } else {
+                            return web3.eth.personal.sign(
+                                require_signature,
+                                account
+                            );
+                        }
+                    })
+                    .then((res) => {
+                        return $.ajax({
+                            url: '/leaseSystem/loginWithMetamask',
+                            data: {
+                                identity: identity, // DID
+                                signature: res, // signature
+                                account: account, // account
+                            },
+                            type: 'post',
+                        });
+                    })
+                    .then((res) => {
+                        console.log('login success!');
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                // This code will be executed if the request fails
+                console.error(textStatus, errorThrown);
+            });
+        });
+    }
+
+    async function main() {
+        let accounts = await web3.eth.getAccounts();
+        account = accounts[0];
+        buildListener();
+    }
+    main();
+</script>
+
+<%- include('partials/footer'); %>

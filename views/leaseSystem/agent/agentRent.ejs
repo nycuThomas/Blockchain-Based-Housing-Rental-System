@@ -1,0 +1,316 @@
+<%- include('../partials/header'); %>
+    <style>
+        select {
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+            /* 使輸入框寬度自適應 */
+        }
+
+        .input-row {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+        }
+    </style>
+
+    <body>
+        <!-- show house data and rent data -->
+        <div class="container mt-3">
+            <div style="margin-top: 10px">
+                <a href="/leaseSystem/agent/manageAgreement">back</a>
+            </div>
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div>
+                    <h1 style="margin:auto" class="font-weight-bold">Rent</h2>
+                </div>
+                <div class="card">
+                    <h4 style="margin:auto" class="font-weight-bold card-title mt-2">House Data</h4>
+
+                    <div style="margin-top: 10px" class="card text-center">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Title</span>
+                            <input type="text" class="form-control" id="title" name="title" value="<%=HouseData.title%>"
+                                readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Owner Address</span>
+                            <input type="text" class="form-control" id="ownerAddress" name="ownerAddress"
+                                value="<%=HouseData.ownerAddress%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">House Address</span>
+                            <input type="text" class="form-control" id="houseAddress" name="houseAddress"
+                                value="<%=HouseData.houseAddress%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">House Area</span>
+                            <input type="text" class="form-control" value="<%=HouseData.area%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Room Type</span>
+                            <select class="form-select" id="roomType" name="roomType" readonly>
+                                <option selected value="<%=HouseData.type%>" readonly>
+                                    <%=HouseData.type%>
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Describe</label>
+                            <input type="text" class="form-control" id="describe" name="describe"
+                                value="<%=HouseData.describe%>" readonly>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Picture</label>
+                            <input type="file" class="form-control" id="picture" name="picture" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- lease option -->
+        <div class="container mt-3">
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div class="card">
+                    <h4 style="margin:auto" class="font-weight-bold card-title mt-2">Rent Data</h4>
+                    <!-- <form name="rentForm" action=""> -->
+                    <!-- <div style="margin-top: 10px" class="card text-center"> -->
+                    <div class="input-group mt-2">
+                        <span class="input-group-text">Rent</span>
+                        <input type="number" min="0" class="form-control" id="price" name="price" value="100">
+                    </div>
+                    <div class="col-12 mt-2 mb-3">
+                        <label class="form-label">Set Condition</label><button id="add-button">add</button>
+                        <div id="input-container">
+                        </div>
+                        <!-- <button id="show-json-button">show</button> -->
+                    </div>
+                    <button type="button" class="btn btn-primary" id="NewListing">upload</button>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+
+        var identityManagerABI, personalIdentityABI;
+        var account;
+        var contract_address = '<%= contract_address %>';
+
+        const preventMalleability = (sig, ecdsa) => {
+            const halfOrder = ecdsa.n.shrn(1);
+            if (sig.s.cmp(halfOrder) === 1) {
+                const bigNum = ecdsa.n;
+                sig.s = bigNum.sub(sig.s);
+            }
+            return sig;
+        };
+
+        function sign(privateKey, digest) {
+            const signKey = ecdsa.keyFromPrivate(privateKey, 'hex');
+            const sig = ecdsa.sign(Buffer.from(digest, 'hex'), signKey);
+            var halfOrderSig = preventMalleability(sig, ecdsa);
+            const signature = Buffer.from(halfOrderSig.toDER());
+            var signature_string = '';
+            for (var i = 0; i < signature.length; i++) {
+                signature_string += signature[i].toString();
+                signature_string += '/';
+            }
+            signature_string = signature_string.slice(0, -1);
+            return signature_string;
+        }
+
+        function ajaxAwait(url, data) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    dataType: 'json',
+                    data: data,
+                    success: function (res) {
+                        console.log('success');
+                        resolve(res);
+                    },
+                    fail: function (xhr, ajaxOptions, thrownError) {
+                        console.log('fail');
+                        reject(false);
+                    },
+                });
+            });
+        }
+
+        function isNumber(value) {
+            if (isNaN(value) | !value) {
+                return false;
+            }
+            return true;
+        }
+        async function buildListener() {
+            let rowCount = 0;
+
+            const options = ['gender', 'job', 'salary']; // 定義選項
+
+            $('#add-button').click(function () {
+                rowCount++; // 增加計數器
+
+                // 創建新的輸入行
+                const newRow = $(`<div class="input-row" id="row-${rowCount}"></div>`);
+
+                // 創建下拉選單
+                const select = $(`<select id="input1-${rowCount}"></select>`);
+                options.forEach(option => {
+                    select.append(`<option value="${option}">${option}</option>`);
+                });
+
+                // 創建文本輸入框
+                const input2 = $(`<input type="text" id="input2-${rowCount}" placeholder="value">`);
+
+                // 將下拉選單和輸入框添加到新行
+                newRow.append(select).append(input2);
+
+                // 將新行添加到容器中
+                $('#input-container').append(newRow);
+
+                // 監聽選擇變化
+                select.change(function () {
+                    updateOptions(); // 更新可選選項
+                });
+            });
+
+            function updateOptions() {
+                const selectedValues = $('.input-row select').map(function () {
+                    return $(this).val();
+                }).get();
+
+                $('select').each(function () {
+                    $(this).find('option').each(function () {
+                        const optionValue = $(this).val();
+                        if (selectedValues.includes(optionValue) && $(this).parent().val() !== optionValue) {
+                            $(this).prop('disabled', true); // 禁用已選擇的選項
+                        } else {
+                            $(this).prop('disabled', false); // 重新啟用選項
+                        }
+                    });
+                });
+            }
+
+            var identityManagerInstance = new web3.eth.Contract(
+                identityManagerABI,
+                contract_address
+            );
+            var personalIdentityAddress = await identityManagerInstance.methods
+                .getAccessManagerAddress(account)
+                .call({ from: account });
+
+            var personalIdentityInstance = new web3.eth.Contract(
+                personalIdentityABI,
+                personalIdentityAddress
+            );
+
+            $('#NewListing').on('click', async function (e) {
+                let price = $("#price").val();
+                let ownerAddress = $("#ownerAddress").val();
+                let houseAddress = $("#houseAddress").val();
+
+                if (!isNumber(price)) {
+                    return alert("rent price must be a numbers!");
+                }
+
+                let jsonObject = {};
+
+                $('.input-row').each(function () {
+                    const key = $(this).find('select').first().val(); // 獲取第一個輸入框的值
+                    const value = $(this).find('input[type="text"]').last().val(); // 獲取第二個輸入框的值
+
+                    if (key && value) { // 確保鍵和值都不為空
+                        jsonObject[key] = value; // 將鍵值對添加到物件中
+                    }
+                });
+
+                let restriction = JSON.stringify(jsonObject, null, 2);
+
+
+                // userPubkey, estateAddress, rent, dataHash
+                let response, result;
+                response = await ajaxAwait(
+                    '/leaseSystem/agent/NewListing',
+                    {
+                        ownerAddress: ownerAddress,
+                        estateAddress: houseAddress,
+                        restriction: restriction,
+                        rent: price
+                    }
+                );
+                console.log('response = ' + response.result);
+                if (response.error) {
+                    return alert(`error :${response.result}`);
+                }
+                let encryptKey = await personalIdentityInstance.methods
+                    .getEncryptMaterial('HLFPrivateKey')
+                    .call({ from: account });
+                let privateKey = await ethereum.request({
+                    method: 'eth_decrypt',
+                    params: [encryptKey, account],
+                });
+                let signature_string;
+                signature_string = sign(privateKey, response.digest);
+                response = await ajaxAwait(
+                    '/leaseSystem/proposalAndCreateCommit',
+                    { signature: signature_string, func: 'NewListing' }
+                );
+                if (response.error) {
+                    return alert(`error :${response.result}`);
+                }
+
+                result = response.result;
+                signature_string = sign(privateKey, response.commitDigest);
+                response = await ajaxAwait('/leaseSystem/commitSend', {
+                    signature: signature_string,
+                    func: 'NewListing',
+                    estateAddress: houseAddress
+                });
+                if (response.error) {
+                    return alert(`error: ${response.result}`);
+                }
+
+                if (alert(`${result}`)) {
+                    window.location.reload();
+                }
+                window.location.reload();
+            });
+        }
+
+        async function main() {
+            let accounts = await web3.eth.getAccounts();
+            account = accounts[0];
+            identityManagerABI = await fetch(
+                '../../contracts/IdentityManager.json'
+            );
+            personalIdentityABI = await fetch(
+                '../../contracts/PersonalIdentity.json'
+            );
+            identityManagerABI = await identityManagerABI.json();
+            identityManagerABI = identityManagerABI.output.abi;
+            personalIdentityABI = await personalIdentityABI.json();
+            personalIdentityABI = personalIdentityABI.output.abi;
+
+            // console.log('identityManagerABI = ' + JSON.stringify(identityManagerABI));
+            // console.log('personalIdentityABI = ' + JSON.stringify(personalIdentityABI));
+
+            buildListener();
+        }
+
+        main();
+
+    </script>
+    <%- include('../partials/footer'); %>

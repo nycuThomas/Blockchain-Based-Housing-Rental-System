@@ -1,0 +1,208 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <div class="container mt-3">
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px">
+                    <a href="/leaseSystem/leaseManage">back</a>
+                </div>
+                <div style="margin-top: 10px" class="card text-center">
+                    <div class="card-header">
+                        <h4 style="margin:auto" class="font-weight-bold">Agreement Data</h4>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Landlord Address</span>
+                        <input type="text" class="form-control" id="landlordAddress" name="landlordAddress"
+                            value="<%=agreement.landlordAddress%>" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Tenant Address</span>
+                        <input type="text" class="form-control" id="tenantAddress" name="tenantAddress"
+                            value="<%=agreement.tenantAddress%>" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">House Address</span>
+                        <input type="text" class="form-control" id="houseAddress" name="houseAddress"
+                            value="<%=agreement.houseAddress%>" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">House Area</span>
+                        <input type="text" class="form-control" value="<%=agreement.area%>" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Rent</span>
+                        <input type="text" class="form-control" id="rent" name="rent" value="<%=agreement.rent%>"
+                            readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">start date</span>
+                        <input type="text" class="form-control" id="startDate" name="startDate"
+                            value="<%=agreement.startDate%>" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">end date</span>
+                        <input type="text" class="form-control" id="endDate" name="endDate" value="<%=agreement.endDate%>" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Agreement Content</span>
+                        <textarea id="content" class="form-control" name="content" rows="4" cols="50"
+                            readonly><%=agreement.content%></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px" class="card text-center">
+                    <div class="card-header">
+                        <h4 style="margin:auto" class="font-weight-bold">Signing</h4>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Owner Sign</span>
+                        <input type="text" class="form-control" id="partyA" name="partyA"
+                            value="<%=agreement.partyASign%>" readonly>
+                        <% if (address==agreement.landlordAddress && !agreement.partyASign) {%>
+                            <input type="button" value="sign" id="SignAgreement">
+                            <% } %>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Tenant Sign</span>
+                        <input type="text" class="form-control" id="partyB" name="partyB"
+                            value="<%=agreement.partyBSign%>" readonly>
+                        <% if (address==agreement.tenantAddress && !agreement.partyBSign) {%>
+                            <input type="button" value="sign" id="SignAgreement">
+                            <% } %>
+                    </div>
+                    <% if (agreement.partyASign && agreement.partyBSign) {%>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Verify both Sign</span>
+                            <input type="button" value="Verify" id="VerifySign">
+                            <% } %>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </body>
+    <script>
+        var identityManagerABI, personalIdentityABI;
+        var account;
+        var contract_address = '<%= contract_address %>';
+
+        var agreement = JSON.parse('<%- JSON.stringify(agreement) %>');
+
+        function ajaxAwait(url, data) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    dataType: 'json',
+                    data: data,
+                    success: function (res) {
+                        console.log('success');
+                        resolve(res);
+                    },
+                    fail: function (xhr, ajaxOptions, thrownError) {
+                        console.log('fail');
+                        reject(false);
+                    },
+                });
+            });
+        }
+
+        async function buildListener() {
+            var identityManagerInstance = new web3.eth.Contract(
+                identityManagerABI,
+                contract_address
+            );
+            var personalIdentityAddress = await identityManagerInstance.methods
+                .getAccessManagerAddress(account)
+                .call({ from: account });
+
+            var personalIdentityInstance = new web3.eth.Contract(
+                personalIdentityABI,
+                personalIdentityAddress
+            );
+
+            $('#SignAgreement').on('click', async function (e) {
+                // async SignAgreement(ctx, PartyAkey, PartyBkey, agreementHashed, signature, type)
+                let landlordAddress = $("#landlordAddress").val();
+                let tenant = $("#tenantAddress").val();
+                let house = $("#houseAddress").val();
+                let response, result;
+                let encryptKey = await personalIdentityInstance.methods
+                    .getEncryptMaterial('HLFPrivateKey')
+                    .call({ from: account });
+                let privateKey = await ethereum.request({
+                    method: 'eth_decrypt',
+                    params: [encryptKey, account],
+                });
+
+                let signature;
+                let signString = agreement.hashed.toString('hex');
+                const signKey = ecdsa.keyFromPrivate(privateKey, 'hex');
+                signature = signKey.sign(signString);
+                // console.log(signature);
+                var derSign = signature.toDER();
+
+                // var publickeyObject = ecdsa.keyFromPublic(agreement.ownerPubkey, 'hex');
+                // alert(publickeyObject.verify(agreement.hashed.toString('hex'), Buffer.from(derSign)));
+
+                response = await ajaxAwait(
+                    '/leaseSystem/agreement/signAgreement',
+                    {
+                        address: account.toLowerCase(),
+                        ownerAddress: landlordAddress,
+                        tenantAddress: tenant,
+                        houseAddress: house,
+                        signature: derSign
+                    }
+                );
+                alert(response.msg);
+                window.location.reload();
+            });
+
+            $('#VerifySign').on('click', async function (e) {
+                // async SignAgreement(ctx, PartyAkey, PartyBkey, agreementHashed, signature, type)
+                let landlordAddress = $("#landlordAddress").val();
+                let tenant = $("#tenantAddress").val();
+                let house = $("#houseAddress").val();
+                let response;
+
+                response = await ajaxAwait(
+                    '/leaseSystem/agreement/verifySign',
+                    {
+                        ownerAddress: landlordAddress,
+                        tenantAddress: tenant,
+                        houseAddress: house,
+                    }
+                );
+                alert(response.msg);
+                // window.location.reload();
+            });
+        }
+
+        async function main() {
+            let accounts = await web3.eth.getAccounts();
+            account = accounts[0];
+            identityManagerABI = await fetch(
+                '../../contracts/IdentityManager.json'
+            );
+            personalIdentityABI = await fetch(
+                '../../contracts/PersonalIdentity.json'
+            );
+            identityManagerABI = await identityManagerABI.json();
+            identityManagerABI = identityManagerABI.output.abi;
+            personalIdentityABI = await personalIdentityABI.json();
+            personalIdentityABI = personalIdentityABI.output.abi;
+
+            // console.log('identityManagerABI = ' + JSON.stringify(identityManagerABI));
+            // console.log('personalIdentityABI = ' + JSON.stringify(personalIdentityABI));
+
+            buildListener();
+        }
+
+        main();
+
+    </script>
+    <%- include('../partials/footer'); %>

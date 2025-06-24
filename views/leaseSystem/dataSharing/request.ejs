@@ -1,0 +1,98 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <div class="container mt-3">
+            <div style="margin-top: 10px">
+                <a href="/leaseSystem/leaseManage">back</a>
+            </div>
+            <div class="col-md-5 center-block card" style="float: none; margin: auto">
+                <h3 style="margin:auto" class="card-header font-weight-bold">Tenant Data</h3>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Tenant Address</span>
+                    <input type="text" class="form-control" id="tenantAddress" name="tenantAddress" value="<%=tenant%>"
+                        readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- list the restrictions in chain -->
+        <div class="container mt-3">
+            <div class="col-md-5 center-block card" style="float: none; margin: auto">
+                <h3 style="margin:auto" class="card-header font-weight-bold">Condition Review</h3>
+                <!-- list all the attribute setting in rent step -->
+                <div class="mx-auto">
+                    <h5 class="mt-3 mb-3 font-weight-bold">House Condition Setted</h5>
+                    <% for (const key in restriction) { %>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <%= key %>
+                            </span>
+                            <input type="text" class="form-control" value="<%= restriction[key] %>" readonly>
+                        </div>
+                        <% } %>
+                </div>
+                <div class="mt-3 mb-3 mx-auto center-block">
+                    <input type="button" class="btn btn-primary" value="Condition Review" id="conditionReview">
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- show the Assessment results -->
+        <div class="container mt-3" id="dataPage">
+            <div class="col-md-5 center-block card" style="float: none; margin: auto">
+                <div class="card-header">
+                    <h4 style="margin:auto" class="font-weight-bold">Review Tenant Results</h4>
+                </div>
+                <% for (const key in restriction) { %>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <%= key %>
+                        </span>
+                        <input type="text" class="form-control" id="<%=key %>" value="" readonly>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        var contract_address = '<%= contract_address %>';
+        var address = '<%= address %>';
+        var pubkey = '<%= pubkey %>';
+        var house = '<%= house %>';
+        var restriction = JSON.parse('<%- JSON.stringify(restriction) %>');
+
+        async function buildListener() {
+            $('#conditionReview').on('click', async function (e) {
+                let tenantAddress = $("#tenantAddress").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/leaseSystem/dataSharing/conditionReview',
+                    dataType: 'json',
+                    data: {
+                        tenantAddress: tenantAddress,
+                        house: house
+                    }
+                }).then((res) => {
+                    alert(res.msg);
+                    console.log(res.data);
+                    for (const key in restriction) {
+                        $(`#${key}`).val(res.data[key]);
+                    }
+                    $('#dataPage').show();
+                })
+            })
+        }
+
+        async function main() {
+            buildListener();
+            $('#dataPage').hide();
+        }
+
+        main();
+
+    </script>
+    <%- include('../partials/footer'); %>

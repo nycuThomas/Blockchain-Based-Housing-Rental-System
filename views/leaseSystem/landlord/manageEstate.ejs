@@ -1,0 +1,100 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <div class="container mt-3">
+            <div style="margin-top: 10px">
+                <a href="/leaseSystem/landlord">back</a>
+            </div>
+            <h2>Manage Estate Data</h2>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">title</th>
+                        <th scope="col">houseAddress</th>
+                        <th scope="col">state</th>
+                        <th scope="col">edit</th>
+                        <th scope="col">rent</th>
+                        <th scope="col">agent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(var i=0;i<HouseData.length;i++){ %>
+                        <!-- <form action="" method="dialog"> -->
+                        <tr>
+                            <td scope="row">
+                                <% if (!HouseData[i].title) {%>
+                                    none
+                                    <%} else{%>
+                                        <%=HouseData[i].title%>
+                                            <%}%>
+                            </td>
+                            <td>
+                                <input type="text" id="addr-<%= i %>" name="addr-<%= i %>"
+                                    value="<%=HouseData[i].houseAddress%>" readonly>
+                            </td>
+                            <td scope="col">
+                                <%=HouseData[i].state%>
+                            </td>
+                            <td><button type="button" class="btn btn-primary" id="edit-<%= i %>">edit</button></td>
+                            <td><button type="button" class="btn btn-primary" id="rent-<%= i %>">rent</button></td>
+                            <td><button type="button" class="btn btn-primary" id="agent-<%= i %>">agent</button></td>
+                        </tr>
+                        <!-- </form> -->
+                        <% } %>
+                </tbody>
+            </table>
+        </div>
+    </body>
+    <script>
+
+        var HouseData = JSON.parse('<%- JSON.stringify(HouseData) %>');
+        async function buildListener() {
+            for (let i = 0; i < HouseData.length; i++) {
+
+                $(`#edit-${i}`).on('click', async function (e) {
+                    let houseAddress = $(`#addr-${i}`).val();
+                    $.ajax({
+                        url: '/leaseSystem/landlord/estatePage',
+                        data: { "houseAddress": houseAddress },
+                        type: 'post'
+                    }).then((res) => {
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+
+                $(`#rent-${i}`).on('click', async function (e) {
+                    let houseAddress = $(`#addr-${i}`).val();
+
+                    $.ajax({
+                        url: '/leaseSystem/landlord/rent',
+                        data: { "houseAddress": houseAddress },
+                        type: 'post'
+                    }).then((res) => {
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+
+                $(`#agent-${i}`).on('click', async function (e) {
+                    let houseAddress = $(`#addr-${i}`).val();
+
+                    $.ajax({
+                        url: '/leaseSystem/landlord/agent',
+                        data: { "houseAddress": houseAddress },
+                        type: 'post',
+                    }).then((res) => {
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    })
+                })
+            }
+
+        }
+        buildListener();
+    </script>
+    <%- include('../partials/footer'); %>

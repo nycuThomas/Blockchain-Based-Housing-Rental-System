@@ -1,0 +1,55 @@
+<%- include('partials/header') -%>
+        <div class="container mt-2">
+            <div class="row">
+                <div class="col-md-6 center-block offset-md-3">
+                    <div class="card text-center">
+                        <div style="font-size: 1.5rem; font-weight:bold" class="card-header">Authenticate user
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group mt-3">
+                                <div class="input-group-prepend"><span id=""
+                                    class="input-group-text">Role</span>
+                                </div>
+                                <select class="form-select form-control func1-input0"  name="type">
+                                    <option value="" disabled selected>Select role</option>
+                                    <option value="person">Natural person</optin>
+                                    <option value="organization">Legal person</option>
+                                </select>
+                            </div>
+                            <div class="input-group mt-3">
+                                <input type="text" placeholder="Enter username" aria-label="Parameter"
+                                    aria-describedby="basic-addon2" required="required" class="func1-input1 form-control">
+                                <input type="text"
+                                    placeholder="Enter ID number" aria-label="Parameter" aria-describedby="basic-addon2" required="required"
+                                    class="func1-input2 form-control">
+                                <div class="input-group-append"><button type="button" id="audit_button" class="func1 btn btn-secondary">authenticate</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <script>
+        $("#audit_button").click(function () {
+            let input_0 = $(".func1-input0").val();
+            let input_1 = $(".func1-input1").val();
+            let input_2 = $(".func1-input2").val();
+            console.log(input_0,input_1,input_2)
+            
+            $.ajax({
+                url: '/identityChain/addUser',
+                data: { type: input_0, Name: input_1, IDNumber: input_2},
+                type: 'post',
+                cache: false,
+                dataType: 'json',
+                success: function(res) {
+                    alert(res.msg);
+                },
+                error: function(err) {
+                    alert(err);
+                }
+            }); 
+        })
+    </script>
+<%- include('partials/footer') -%>

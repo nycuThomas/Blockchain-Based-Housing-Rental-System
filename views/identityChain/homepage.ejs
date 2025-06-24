@@ -1,0 +1,252 @@
+<%- include('partials/header') -%>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-5 center-block" style="float: none; margin: auto">
+            <div class="card text-center">
+                <div
+                    style="font-size: 1.5rem; font-weight: bold"
+                    class="card-header"
+                >
+                    LOGIN
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a
+                                class="nav-link active"
+                                id="person-tab"
+                                data-toggle="tab"
+                                href="#person"
+                                role="tab"
+                                aria-controls="person"
+                                aria-selected="true"
+                                >Natural person</a
+                            >
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a
+                                class="nav-link"
+                                id="organization-tab"
+                                data-toggle="tab"
+                                href="#organization"
+                                role="tab"
+                                aria-controls="organization"
+                                aria-selected="false"
+                                >Legal person</a
+                            >
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div
+                            class="tab-pane fade show active"
+                            id="person"
+                            role="tabpanel"
+                            aria-labelledby="person-tab"
+                        >
+                            <form
+                                action="/identityChain/login"
+                                method="post"
+                                class="mt-4"
+                            >
+                                <div class="input-group">
+                                    <input
+                                        type="text"
+                                        name="userName"
+                                        placeholder="Username"
+                                        required="required"
+                                        class="form-control"
+                                    />
+                                </div>
+                                <div class="input-group mt-3">
+                                    <div class="input-group">
+                                        <input
+                                            type="password"
+                                            name="IDNumber"
+                                            placeholder="Identification card number"
+                                            data-toggle="password"
+                                            required="required"
+                                            class="form-control"
+                                        />
+
+                                        <div
+                                            class="input-group-append"
+                                            style="cursor: pointer"
+                                        ></div>
+                                    </div>
+                                </div>
+                                <input
+                                    type="submit"
+                                    value="Login"
+                                    class="btn btn-secondary btn-lg btn-block mt-3"
+                                />
+                            </form>
+                        </div>
+                        <div
+                            class="tab-pane fade"
+                            id="organization"
+                            role="tabpanel"
+                            aria-labelledby="organization-tab"
+                        >
+                            <form
+                                action="/identityChain/loginOrg"
+                                method="post"
+                                class="mt-4"
+                            >
+                                <div class="input-group">
+                                    <input
+                                        type="text"
+                                        name="organizationName"
+                                        placeholder="Organization Name"
+                                        required="required"
+                                        class="form-control"
+                                    />
+                                </div>
+                                <div class="input-group mt-3">
+                                    <div class="input-group">
+                                        <input
+                                            type="password"
+                                            name="uniformNumber"
+                                            placeholder="Uniform Number"
+                                            data-toggle="password"
+                                            required="required"
+                                            class="form-control"
+                                        />
+
+                                        <div
+                                            class="input-group-append"
+                                            style="cursor: pointer"
+                                        ></div>
+                                    </div>
+                                </div>
+                                <input
+                                    type="submit"
+                                    value="Login"
+                                    class="btn btn-secondary btn-lg btn-block mt-3"
+                                />
+                            </form>
+                        </div>
+                    </div>
+
+                    <p class="mt-3 text-left">
+                        Cannot login？
+                        <a href="/identityChain/register">Sign up now</a>
+                    </p>
+                </div>
+            </div>
+            <div style="margin-top: 10px" class="card text-center">
+                <div
+                    style="font-size: 1.5rem; font-weight: bold"
+                    class="card-header"
+                >
+                    Binding Completed
+                </div>
+                <div class="card-body">
+                    <button
+                        id="loginWithMetamask"
+                        class="btn btn-secondary btn-lg btn-block mt-2"
+                    >
+                        Login with Metamask
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var account;
+    var require_signature = "<%= require_signature  %>";
+    var contract_address = "<%= contract_address  %>";
+    const emptyAddress =
+        "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    async function buildListener() {
+        window.ethereum.on("accountsChanged", function (accounts) {
+            account = accounts[0];
+        });
+        $("#loginWithMetamask").on("click", async function (e) {
+            $.getJSON("../../contracts/IdentityManager.json", function (data) {
+                // This code will be executed when the request succeeds
+                let contractInstance = new web3.eth.Contract(
+                    data.output.abi,
+                    contract_address
+                );
+
+                contractInstance.methods
+                    .getId()
+                    .call({ from: account })
+                    .then((result) => {
+                        if (result === emptyAddress || !result) {
+                            return Promise.reject(
+                                "This account has not been bound yet!"
+                            );
+                        } else {
+                            // Sign the identity and then send to server
+                            return Promise.resolve(result);
+                        }
+                    })
+                    .then((result) => {
+                        web3.eth.personal
+                            .sign(require_signature, account)
+                            .then((res) => {
+                                $.ajax({
+                                    url: "/identityChain/loginWithMetamask",
+                                    data: {
+                                        identity: result, // DID
+                                        signature: res, // signature
+                                        account: account, // account
+                                    },
+                                    type: "post",
+                                    success: function (res) {
+                                        console.log("success");
+                                        console.log(res);
+                                        //- window.location.replace("/profile");
+                                        if (res.url)
+                                            window.location.href = res.url;
+                                    },
+                                    error: function (err) {
+                                        console.log("error");
+                                        alert();
+                                    },
+                                });
+                            });
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                // This code will be executed if the request fails
+                console.error(textStatus, errorThrown);
+            });
+
+            // let result = await web3.eth.personal.sign(
+            //     require_signature,
+            //     account
+            // );
+            // $.ajax({
+            //     url: "/identityChain/loginWithMetamask",
+            //     data: {
+            //         signature: result, // signature
+            //         account: account, // account
+            //     },
+            //     type: "post",
+            //     success: function (result) {
+            //         if (result.msg) {
+            //             console.log(result.msg);
+            //         } else if (result.url) {
+            //             window.location.href = result.url;
+            //         }
+            //     },
+            //     error: function (err) {
+            //         console.log(err);
+            //     },
+            // });
+        });
+    }
+    async function main() {
+        let accounts = await web3.eth.getAccounts();
+        account = accounts[0];
+        buildListener();
+    }
+    main();
+</script>
+<%- include('partials/footer'); %>

@@ -1,0 +1,193 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <div class="container mt-3">
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px">
+                    <a href="/leaseSystem/profile">back</a>
+                </div>
+                <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Address</span>
+                    </div>
+                    <input class="form-control" name="userAddress" id="userAddress" type="text" value="<%=address %>"
+                        readonly>
+                </div>
+                <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Pubkey</span>
+                    </div>
+                    <input class="form-control" name="userPubkey" id="userPubkey" type="text" value="<%=pubkey %>"
+                        readonly>
+                </div>
+                <div style="margin-top: 10px" class="card text-center">
+                    <div style="font-size: 1.5rem; font-weight: bold" class="card-header">
+                        Submit Land Ownership Certificate
+                    </div>
+                    <form style="margin-block: 10px" method="dialog">
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">Name</span>
+                            </div>
+                            <input type="text" name="NameUpload" id="NameUpload" required="required"
+                                class="form-control">
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">IDNumber</span>
+                            </div>
+                            <input type="text" name="IDNumberUpload" id="IDNumberUpload" required="required"
+                                class="form-control">
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">House Address</span>
+                            </div>
+                            <input type="text" name="houseAddress" id="houseAddress" required="required"
+                                class="form-control">
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">Area(m^2)</span>
+                            </div>
+                            <input type="text" name="area" id="area" required="required" class="form-control">
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">Registration Date</span>
+                            </div>
+                            <input type="text" name="registrationDate" id="registrationDate" required="required"
+                                class="form-control">
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-success mt-3" id="estateUpload">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-7">
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px" class="card text-center">
+                    <div style="font-size: 1.5rem; font-weight: bold" class="card-header">
+                        Certificate Estate Agent License
+                    </div>
+                    <form style="margin-block: 10px" method="dialog">
+
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">Name</span>
+                            </div>
+                            <input type="text" name="nameAgent" id="nameAgent" required="required" class="form-control">
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">IDNumber</span>
+                            </div>
+                            <input type="text" name="IDNumberAgent" id="IDNumberAgent" required="required"
+                                class="form-control">
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">Expiry Date</span>
+                            </div>
+                            <input type="text" name="expDate" id="expDate" required="required" class="form-control">
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-success mt-3" id="agentUpload">Submit</button>
+                            <button class="btn btn-primary btn-success mt-3" id="getCert">getCert</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        async function buildListener() {
+
+            $('#estateUpload').on('click', async function (e) {
+                let NameUpload = $("#NameUpload").val();
+                let IDNumberUpload = $("#IDNumberUpload").val();
+                let houseAddress = $("#houseAddress").val();
+                let area = $("#area").val();
+                let registrationDate = $("#registrationDate").val();
+                let userAddress = $("#userAddress").val();
+                let userPubkey = $("#userPubkey").val();
+                let data;
+
+                data = {
+                    "name": NameUpload,
+                    "userAddress": userAddress,
+                    "userPubkey": userPubkey,
+                    "IDNumber": IDNumberUpload,
+                    "houseAddress": houseAddress,
+                    "area": area,
+                    "date": registrationDate
+                }
+
+                $.ajax({
+                    url: '/leaseSystem/certification/estateUpload',
+                    data: data,
+                    type: 'post',
+                    success: function (res) {
+                        alert(res.msg);
+                    },
+                    error: function (err) {
+                        console.log("error");
+                        alert(err);
+                    }
+                });
+            })
+
+            $('#agentUpload').on('click', async function (e) {
+                let NameUpload = $("#nameAgent").val();
+                let IDNumberUpload = $("#IDNumberAgent").val();
+                let userAddress = $("#userAddress").val();
+                let userPubkey = $("#userPubkey").val();
+                let expDate = $("#expDate").val();
+                let data;
+
+                data = {
+                    "name": NameUpload,
+                    "userAddress": userAddress,
+                    "userPubkey": userPubkey,
+                    "IDNumber": IDNumberUpload,
+                    "date": expDate
+                }
+
+                $.ajax({
+                    url: '/leaseSystem/certification/agentUpload',
+                    data: data,
+                    type: 'post',
+                    success: function (res) {
+                        alert(res.msg);
+                    },
+                    error: function (err) {
+                        console.log("error");
+                        alert(err);
+                    }
+                });
+            })
+
+            $('#getCert').on('click', async function (e) {
+                $.ajax({
+                    url: '/leaseSystem/agent/getCert',
+                    type: 'post',
+                    success: function (res) {
+                        alert(res.msg);
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        console.log("error");
+                        alert(err);
+                    }
+                });
+            })
+        }
+        async function main() {
+            buildListener();
+        }
+        main();
+    </script>
+    <%- include('../partials/footer'); %>

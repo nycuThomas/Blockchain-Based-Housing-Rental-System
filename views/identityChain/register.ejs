@@ -1,0 +1,232 @@
+<%- include('partials/header'); %>
+<div class="container mt-2">
+    <div class="row mt-4">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="row" style="justify-content: center;">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card card-body text-center">
+                            <iconify-icon icon="bi:people-circle" width="200" style="margin:auto;"></iconify-icon>
+                            <div class="card-body" style="height: 150px;">
+                                <h4 class="text-center">Natural person</h4>
+                                <p class="card-text">If you are a general user and want to
+                                    register on the DID chain.</p>
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#UserModal" style="margin-top: 10px;">Registration</button>
+                        </div>
+                    </div>    
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card card-body text-center">
+                            <iconify-icon icon="bxs:business" width="200" style="margin:auto;"></iconify-icon>
+                            <div class="card-body" style="height: 150px;">
+                                <h4 class="text-center">Legal person</h4>
+                                <p class="card-text">If you are a company or organization such
+                                    as high school or equipment supplier want to register on DID
+                                    chain</p>
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#OrgModal" style="margin-top: 10px;">Registration</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="UserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" >
+        <h5 class="modal-title" id="exampleModalLabel" >User Register</h5>
+      </div>
+      <div class="modal-body">
+        <form action="/identityChain/USERregister" method="post">
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">User name</span>
+                </div>
+                <input type="text" name="userName" placeholder="Username" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">Date of birth</span>
+                </div>
+                <input type="text" name="birth" placeholder="YYYY/MM/DD" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">E-mail</span>
+                </div>
+                <input type="text" name="email" placeholder="Email" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">Phone</span>
+                </div>
+                <input type="text" name="phone" placeholder="Phone number" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">ID number</span>
+                </div>
+                <input type="text" name="IDNumber" placeholder="Identification card number" required="required" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <input type="submit" value="Register" class="btn btn-success">
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="OrgModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" >
+        <h5 class="modal-title" id="exampleModalLabel" >Org Register</h5>
+      </div>
+      <div class="modal-body">
+        <form action="/identityChain/ORGregister" method="post">
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">Organization Name</span>
+                </div>
+                <input type="text" name="organizationName" placeholder="organization Name" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">Person In Charge</span>
+                </div>
+                <input type="text" name="personInCharge" placeholder="Person In Charge" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">Phone</span>
+                </div>
+                <input type="text" name="phone" placeholder="Phone number" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">E-mail</span>
+                </div>
+                <input type="text" name="email" placeholder="Email" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id="" class="input-group-text">Uniform number</span>
+                </div>
+                <input type="text" name="UniformNumbers" placeholder="Uniform Numbers" required="required" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <span id=""class="input-group-text">ecosystem</span>
+                </div>
+                <select class="form-select form-control" name="type">
+                    <option value="" disabled selected>Select activity type</option>
+                    <option value="E-portfolio">E-portfolio</optin>
+                    <option value="physiological-data">Physiological-data</option>
+                    <option value="open-banking">Open-banking</option>
+                    <option value="lease-system">lease-system</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <input type="submit" value="Register" class="btn btn-success">
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 
+<script src="./js/bundle.js"></script>
+<script src="./js/web3_bundle.js"></script>
+<script>
+    window.userWalletAddress = null;
+    const connectButton = document.getElementById('connectButton');
+    
+    // TODO: disconnect metamask
+    async function Disconnect(){
+        const accounts = await window.ethereum.request({method: 'eth_accounts'});
+        // console.log("onclick");
+        console.log(accounts);
+        if (accounts && accounts.length > 0) {
+            console.log("user is connected");
+        } else {
+            console.log("user not connected");
+        }
+        
+    }
+
+    function toggleButton(){
+        // metamask uninstall
+        if(!window.ethereum){
+            //change button text
+            connectButton.innerText = 'Metamask is not installed';
+            
+            //change button style
+            connectButton.classList.remove('btn', 'btn-outline-secondary');
+            connectButton.classList.add('btn', 'btn-outline-danger');
+            return ;
+        }
+
+        // when button is click execute loginWithMetamask
+        connectButton.addEventListener('click',()=>{ConnectWithMetamask()});
+    };
+
+    async function ConnectWithMetamask(){
+        // connect to metamask account
+        const account = await window.ethereum.request({method:"eth_requestAccounts"})
+            .catch((e)=>{
+                console.error(e.message);
+                return;
+            })
+        if(!account) return ;
+        
+        console.log(account);
+    }
+    // https://www.youtube.com/watch?v=REjjoQq4cQY
+    async function signMessage(){
+        const nonce = Math.floor(Math.random() * (1000 - 1 + 1) + 1);
+        console.log(nonce);      
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        
+        let message = "nonce : "+nonce.toString();
+        const signature = await signer.signMessage(message);
+        //console.log(signature);
+
+        // const address = await signer.getAddress();
+        // console.log(address);
+        
+
+        // signer
+        const address = ethers.utils.verifyMessage(message,signature);
+        // account
+        const accounts = await window.ethereum.request({method: 'eth_accounts'});
+        
+        // console.log(address);
+        // console.log(accounts);
+        
+        if(address.toLowerCase() === accounts.toString().toLowerCase()){
+            console.log('OK login');
+        }else{
+            console.log('Failed login');
+        }
+        window.location.replace("http://localhost:3000/dashboard");
+        
+    }
+
+    window.addEventListener('DOMContentLoaded',(event)=>{
+        toggleButton(); 
+    });
+</script> -->
+<%- include('partials/footer'); %>

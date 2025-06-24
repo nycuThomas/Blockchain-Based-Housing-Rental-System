@@ -1,0 +1,15 @@
+{
+    "contracts": {
+        "identityManagerAddress": "0xE6042703475D0dd1bC2eB564a55F1832c2527171"
+    },
+    "identityChain": {
+        "address": "0xe092b1fa25DF5786D151246E492Eed3d15EA4dAA",
+        "key": "0cc0c2de7e8c30525b4ca3b9e0b9703fb29569060d403261055481df7014f7fa"
+    },
+    "leaseSystem": {
+        "address": "0xc0d8F541Ab8B71F20c10261818F2F401e8194049",
+        "pubkey": "novaq02ocUQSVkuNpjcdpyFKNG3YtG4W21UDJ7s8l08",
+        "key": "b97de1848f97378ee439b37e776ffe11a2fff415b2f93dc240b2d16e9c184ba9"
+    },
+    "web3_provider": "http://127.0.0.1:8545"
+}

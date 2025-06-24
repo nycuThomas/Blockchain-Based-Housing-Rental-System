@@ -1,0 +1,71 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <div class="container mt-7">
+            <div style="margin-top: 10px">
+                <a href="/leaseSystem/landlord/">back</a>
+            </div>
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px" class="card text-center">
+                    <div style="font-size: 1.5rem; font-weight: bold" class="card-header">
+                        Upload and Binding Estate
+                    </div>
+                    <form style="margin-block: 10px" method="dialog">
+                        <div class="input-group mt-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Address</span>
+                            </div>
+                            <input class="form-control" name="userAddress" id="userAddress" type="text"
+                                value="<%=address %>" readonly>
+                        </div>
+                        <!-- <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">IDNumber</span>
+                            </div>
+                            <input type="text" name="IDNumberBind" id="IDNumberBind" required="required" class="form-control">
+                        </div> -->
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span id="" class="input-group-text">House Address</span>
+                            </div>
+                            <input type="text" name="houseAddressBind" id="houseAddressBind" required="required"
+                                class="form-control">
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-success mt-3" id="estateBind">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+    </body>
+    <script>
+        async function buildListener() {
+            $('#estateBind').on('click', async function (e) {
+                // let userAddress = $("#userAddress").val();
+                // let IDNumberBind = $("#IDNumberBind").val();
+                let houseAddressBind = $("#houseAddressBind").val();
+
+                let data = {
+                    "houseAddress": houseAddressBind
+                }
+
+                $.ajax({
+                    url: '/leaseSystem/landlord/estateBind',
+                    data: data,
+                    type: 'post',
+                    success: function (res) {
+                        alert(res.msg);
+                    },
+                    error: function (err) {
+                        console.log("error");
+                        alert(err);
+                    }
+                });
+            })
+        }
+        buildListener();
+    </script>
+    <%- include('../partials/footer'); %>

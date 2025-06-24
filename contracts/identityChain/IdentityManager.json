@@ -1,0 +1,140 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "hashed",
+						"type": "string"
+					}
+				],
+				"name": "addUser",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "hashed",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "userType",
+						"type": "uint256"
+					}
+				],
+				"name": "bindAccount",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					}
+				],
+				"name": "getAccessManagerAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getId",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getUserType",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"identityChain/IdentityManager.sol": "IdentityManager"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"identityChain/IdentityManager.sol": {
+			"keccak256": "0x40d1cbe62f33914a601383c9fe35e6466043b3f77656a9961b54e6b4648511ff",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c933e8bc09cce7fb97e4922f5da43ca3f8fdb8f8b95c3ddf968ef26199711d00",
+				"dweb:/ipfs/QmYA1uZ5Ntsw1eJY72XqcFEm6khkibGPHMurZ2CP7jivCo"
+			]
+		},
+		"identityChain/PersonalIdentity.sol": {
+			"keccak256": "0x203046a341ce111a5d09b5d7b796b5f228db19db7affafe81e360b8143c5e866",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://328175a0f96de957cc7a86e1d43073ffedee91333d37895ef42e07c1aa4b0574",
+				"dweb:/ipfs/QmdHoo9m3EiNAr8WhoQDt4MbPVkmhd3sQvSmC9YUZbDWia"
+			]
+		}
+	},
+	"version": 1
+}

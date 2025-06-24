@@ -1,0 +1,247 @@
+<%- include('../partials/header'); %>
+    <style>
+        /* Slideshow Gallery 样式 */
+        .slideshow-container {
+            max-width: 500px;
+            position: relative;
+            margin: auto;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .prev,
+        .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.3s;
+            user-select: none;
+        }
+
+        .prev {
+            left: 0;
+        }
+
+        .next {
+            right: 0;
+        }
+
+        /* Thumbnail 样式 */
+        .thumbnail-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .thumbnail-container img {
+            width: 60px;
+            height: auto;
+            margin: 5px;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .thumbnail-container img.active-thumbnail {
+            opacity: 1;
+            border: 2px solid #333;
+        }
+
+        /* 原圖預覽樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+
+    <body>
+        <div class="container mt-3">
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px">
+                    <a href="/leaseSystem/agent/manageAgreement">back</a>
+                </div>
+                <!-- now images -->
+                <div class="slideshow-container">
+                    <% images.forEach(function(image, index) { %>
+                        <div class="slide" style="display: '<%= index === 0 ? 'block' : 'none' %>';">
+                            <img src="<%= image %>" alt="Image" style="width:100%; height:auto;" class="main-image">
+                        </div>
+                        <% }); %>
+                            <a class="prev" id="prevSlide">&#10094;</a>
+                            <a class="next" id="nextSlide">&#10095;</a>
+                </div>
+
+                <div class="thumbnail-container">
+                    <% images.forEach(function(image, index) { %>
+                        <img src="<%= image %>" class="thumbnail <%= index === 0 ? 'active-thumbnail' : '' %>"
+                            data-index="<%= index %>" />
+                        <% }); %>
+                </div>
+
+                <div id="imageModal" class="modal">
+                    <span class="close" id="closeModal">&times;</span>
+                    <img id="fullImage" src="" alt="Full Image">
+                </div>
+
+                <div class="card-header">
+                    <h4 style="margin:auto" class="font-weight-bold">Manage House Data</h4>
+                </div>
+                <div style="margin-top: 10px" class="card text-center">
+                    <form id="uploadForm" method="post" action="/leaseSystem/agent/estateUpdate"
+                        enctype="multipart/form-data">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Title</span>
+                            <input type="text" class="form-control" id="title" name="title"
+                                value="<%=HouseData.title%>">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Owner Address</span>
+                            <input type="text" class="form-control" id="ownerAddress" name="ownerAddress"
+                                value="<%=HouseData.ownerAddress%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">House Address</span>
+                            <input type="text" class="form-control" id="houseAddress" name="houseAddress"
+                                value="<%=HouseData.houseAddress%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">House Area</span>
+                            <input type="text" class="form-control" value="<%=HouseData.area%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Room Type</span>
+                            <select class="form-select" id="roomType" name="roomType">
+                                <option selected value="<%=HouseData.type%>">
+                                    <%=HouseData.type%>
+                                </option>
+                                <option value="single room">single room</option>
+                                <option value="double room">double room</option>
+                                <option value="One Bedroom">One Bedroom</option>
+                                <option value="studio">studio</option>
+                                <option value="room to share">room to share</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Describe(less than 300 chars)</label>
+                            <textarea id="describe" class="form-control" name="describe" maxlength="300" rows="4"
+                                cols="50"><%=HouseData.describe%></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">upload images</label>
+                            <input type="file" id="images" name="images" accept="image/*" multiple>
+                        </div>
+                        <div class="input-group mb-3; row">
+                            <div class="col"><button class="btn btn-primary" type="submit" id="save">save</button></div>
+                            <div class="col"><button class="btn btn-primary" type="reset">reset</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        const images = JSON.parse('<%- JSON.stringify(images); %>');
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            $(".slide").hide();
+            $(".slide").eq(index).show();
+            $(".thumbnail").removeClass("active-thumbnail");
+            $(".thumbnail").eq(index).addClass("active-thumbnail");
+        }
+
+        $("#prevSlide").click(function () {
+            currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+            showSlide(currentIndex);
+        });
+
+        $("#nextSlide").click(function () {
+            currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
+            showSlide(currentIndex);
+        });
+
+        $(".thumbnail").click(function () {
+            currentIndex = $(this).data("index");
+            showSlide(currentIndex);
+        });
+
+        // 初始化顯示第一張圖片
+        showSlide(currentIndex);
+
+        // 點擊主圖片顯示原圖
+        $(".main-image").click(function () {
+            const src = $(this).attr("src");
+            $("#fullImage").attr("src", src);
+            $("#imageModal").css("display", "flex");
+        });
+
+        // 關閉模態視窗
+        $("#closeModal").click(function () {
+            $("#imageModal").css("display", "none");
+        });
+
+        // 點擊模態視窗外部關閉
+        $("#imageModal").click(function (event) {
+            if (event.target === this) {
+                $(this).css("display", "none");
+            }
+        });
+
+        $("#uploadForm").submit(function (event) {
+            const maxTextLength = 300;
+            const maxImageSize = 10 * 1024 * 1024; // 10MB
+
+            // 檢查文字長度
+            const text = $("#describe").val();
+            if (text.length > maxTextLength) {
+                alert("describe can not more than 300 chars");
+                event.preventDefault();
+                return;
+            }
+
+            // 檢查圖片大小
+            const files = $("#images")[0].files;
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > maxImageSize) {
+                    alert("images size can not more than 10MB！");
+                    event.preventDefault();
+                    return;
+                }
+            }
+        });
+    </script>
+    <%- include('../partials/footer'); %>

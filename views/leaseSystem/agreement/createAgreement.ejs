@@ -1,0 +1,278 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <div class="container mt-3">
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div style="margin-top: 10px">
+                    <a href="/leaseSystem/leaseManage">back</a>
+                </div>
+                <div style="margin-top: 10px" class="card text-center">
+                    <div class="card-header">
+                        <h4 style="margin:auto" class="font-weight-bold">House Data</h4>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Title</span>
+                        <input type="text" class="form-control" id="title" name="title" value="<%=houseData.title%>"
+                            readonly>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Picture</label>
+                        <picture></picture>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Owner Address</span>
+                        <input type="text" class="form-control" id="uploader" name="uploader"
+                            value="<%=houseData.ownerAddress%>" readonly>
+                    </div>
+                    <% if (houseData.agent !="0x" ) { %>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Agent Address</span>
+                            <input type="text" class="form-control" id="agent" name="agent" value="<%=houseData.agent%>"
+                                readonly>
+                        </div>
+                        <%} %>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">House Address</span>
+                                <input type="text" class="form-control" id="houseAddress" name="houseAddress"
+                                    value="<%=houseData.houseAddress%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">House Area</span>
+                                <input type="text" class="form-control" value="<%=houseData.area%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Room Type</span>
+                                <input type="text" class="form-control" id="roomType" name="roomType"
+                                    value="<%=houseData.type%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Rent</span>
+                                <input type="text" class="form-control" id="rent" name="rent" value="<%=rentData.rent%>"
+                                    readonly>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Describe</label>
+                                <input type="text" class="form-control" id="describe" name="describe"
+                                    value="<%=houseData.describe%>" readonly>
+                            </div>
+                </div>
+            </div>
+        </div>
+        <% if (address==houseData.ownerAddress) {%>
+            <div class="container mt-3">
+                <div class="col-md-5 center-block" style="float: none; margin: auto">
+                    <div style="margin-top: 10px" class="card text-center">
+                        <div class="card-header">
+                            <h4 style="margin:auto" class="font-weight-bold">Owner Data</h4>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Owner Address</span>
+                            <input type="text" class="form-control" id="userAddress" name="userAddress"
+                                value="<%=userData.address%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Owner Pubkey</span>
+                            <input type="text" class="form-control" id="userPubkey" name="userPubkey"
+                                value="<%=userData.pubkey%>" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">House Address</span>
+                            <input type="text" class="form-control" value="<%=houseData.houseAddress%>" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } else {%>
+                <div class="container mt-3">
+                    <div class="col-md-5 center-block" style="float: none; margin: auto">
+                        <div style="margin-top: 10px" class="card text-center">
+                            <div class="card-header">
+                                <h4 style="margin:auto" class="font-weight-bold">Agent Data</h4>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Agent Address</span>
+                                <input type="text" class="form-control" id="userAddress" name="userAddress"
+                                    value="<%=userData.address%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Agent Pubkey</span>
+                                <input type="text" class="form-control" id="userPubkey" name="userPubkey"
+                                    value="<%=userData.pubkey%>" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                    <div class="container mt-3">
+                        <div class="col-md-5 center-block" style="float: none; margin: auto">
+                            <div style="margin-top: 10px" class="card text-center">
+                                <div class="card-header">
+                                    <h4 style="margin:auto" class="font-weight-bold">Tenant Data</h4>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Tenant Address</span>
+                                    <input type="text" class="form-control" id="tenantAddress" name="tenantAddress"
+                                        value="<%=tenantData.address%>" readonly>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Tenant Pubkey</span>
+                                    <input type="text" class="form-control" id="tenantPubkey" name="tenantPubkey"
+                                        value="<%=tenantData.pubkey%>" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="container mt-3">
+                        <div class="col-md-5 center-block" style="float: none; margin: auto">
+                            <div style="margin-top: 10px" class="card text-center">
+                                <div class="card-header">
+                                    <h4 style="margin:auto" class="font-weight-bold">Agreement</h4>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Start Date</span>
+                                    <input type="text" class="form-control" id="startDate" name="startDate" value="">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">End Date</span>
+                                    <input type="text" class="form-control" id="endDate" name="endDate" value="">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Agreement Content</span>
+                                    <!-- <input type="text" class="form-control" id="content" name="content" value=""> -->
+                                    <textarea id="content" class="form-control" name="content" rows="4"
+                                        cols="50"></textarea>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Create Agreement</span>
+                                    <input class="btn btn-primary" id="CreateAgreement" value="Create">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">View and Sign Agreement</span>
+                                    <input class="btn btn-primary" id="ViewAgreement" value="View and Sign">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+    </body>
+    <script>
+        var houseData = JSON.parse('<%- JSON.stringify(houseData) %>');
+        var rentData = JSON.parse('<%- JSON.stringify(rentData) %>');
+        var userData = JSON.parse('<%- JSON.stringify(userData) %>');
+        var tenantData = JSON.parse('<%- JSON.stringify(tenantData) %>');
+
+
+        function ajaxAwait(url, data) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    dataType: 'json',
+                    data: data,
+                    success: function (res) {
+                        console.log('success');
+                        resolve(res);
+                    },
+                    fail: function (xhr, ajaxOptions, thrownError) {
+                        console.log('fail');
+                        reject(false);
+                    },
+                });
+            });
+        }
+
+        async function buildListener() {
+
+            $('#CreateAgreement').on('click', async function (e) {
+                let content = $("#content").val();
+                let endDate = $("#endDate").val();
+                let startDate = $("#startDate").val();
+                let leaseData = {
+                    "content": content,
+                    "endDate": endDate,
+                    "startDate": startDate
+                }
+
+
+                response = await ajaxAwait(
+                    '/leaseSystem/agreement/createAgreement',
+                    {
+                        ownerAddress: houseData.ownerAddress,
+                        tenantAddress: tenantData.address,
+                        agentAddress: houseData.agent,
+                        houseOwner: houseData.ownerAddress,
+                        houseAddress: houseData.houseAddress,
+                        houseArea: houseData.area,
+                        endDate: leaseData.endDate,
+                        startDate: leaseData.startDate,
+                        rent: rentData.rent,
+                        content: leaseData.content,
+                        createrPubkey: userData.pubkey,
+                        tenantPubkey: tenantData.pubkey
+                    }
+                );
+                if (response.error) {
+                    console.log(response.error);
+                }
+
+                // console.log(response.hashed);
+                try {
+                    if (response.hashed) {
+                        // alert(response.msg);
+
+                        let result = await ajaxAwait(
+                            '/leaseSystem/leaseManage/agreementCreateDone',
+                            {
+                                tenantAddress: tenantData.address,
+                                ownerAddress: houseData.ownerAddress,
+                                houseAddress: houseData.houseAddress,
+                                hashed: response.hashed
+                            }
+                        );
+                        alert(result.msg);
+                    }
+                    else {
+                        alert(`create error ${response.error}`);
+                    }
+                } catch (error) {
+                    alert(`try error ${error}`)
+                }
+                window.location.reload();
+            })
+
+            $('#ViewAgreement').on('click', async function (e) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/leaseSystem/agreement/agreementPage',
+                    dataType: 'json',
+                    data: {
+                        ownerAddress: userData.address,
+                        tenantAddress: tenantData.address,
+                        houseAddress: houseData.houseAddress,
+                    },
+                    success: function (res) {
+                        console.log('success');
+                        if (res.url) {
+                            window.location.href = res.url;
+                        }
+                    },
+                    fail: function (xhr, ajaxOptions, thrownError) {
+                        console.log('fail');
+                        reject(false);
+                    },
+                });
+                // console.log(response.toString());
+            })
+        }
+
+        async function main() {
+
+            buildListener();
+        }
+
+        main();
+
+    </script>
+    <%- include('../partials/footer'); %>

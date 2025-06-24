@@ -1,0 +1,177 @@
+{
+  "$schema": "https://github.com/hyperledger-labs/fablo/releases/download/1.2.0/schema.json",
+  "global": {
+    "fabricVersion": "2.4.7",
+    "tls": false,
+    "engine": "docker",
+    "peerDevMode": false
+  },
+  "orgs": [
+    {
+      "organization": {
+        "name": "Orderer",
+        "domain": "orderer.example.com"
+      },
+      "orderers": [
+        {
+          "groupName": "group1",
+          "type": "solo",
+          "instances": 1
+        }
+      ]
+    },
+    {
+      "organization": {
+        "name": "Org1",
+        "domain": "org1.example.com"
+      },
+      "peer": {
+        "instances": 1,
+        "db": "CouchDb"
+      }
+    },
+    {
+      "organization": {
+        "name": "Org2",
+        "domain": "org2.example.com"
+      },
+      "peer": {
+        "instances": 1,
+        "db": "CouchDb"
+      }
+    },
+    {
+      "organization": {
+        "name": "Org3",
+        "domain": "org3.example.com"
+      },
+      "peer": {
+        "instances": 1,
+        "db": "CouchDb"
+      }
+    },
+    {
+      "organization": {
+        "name": "Org4",
+        "domain": "org4.example.com"
+      },
+      "peer": {
+        "instances": 1,
+        "db": "CouchDb"
+      }
+    }
+  ],
+  "channels": [
+    {
+      "name": "register-channel",
+      "orgs": [
+        {
+          "name": "Org1",
+          "peers": [
+            "peer0"
+          ]
+        },
+        {
+          "name": "Org2",
+          "peers": [
+            "peer0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lease-channel",
+      "orgs": [
+        {
+          "name": "Org1",
+          "peers": [
+            "peer0"
+          ]
+        },
+        {
+          "name": "Org2",
+          "peers": [
+            "peer0"
+          ]
+        },
+        {
+          "name": "Org3",
+          "peers": [
+            "peer0"
+          ]
+        },
+        {
+          "name": "Org4",
+          "peers": [
+            "peer0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "acc-channel",
+      "orgs": [
+        {
+          "name": "Org1",
+          "peers": [
+            "peer0"
+          ]
+        },
+        {
+          "name": "Org2",
+          "peers": [
+            "peer0"
+          ]
+        },
+        {
+          "name": "Org4",
+          "peers": [
+            "peer0"
+          ]
+        }
+      ]
+    }
+  ],
+  "chaincodes": [
+    {
+      "name": "EstateRegister",
+      "version": "0.0.1",
+      "lang": "node",
+      "channel": "register-channel",
+      "directory": "./chaincodes/chaincode-EstateRegister-node",
+      "endorsement": "OR('Org1MSP.member', 'Org2MSP.member')"
+    },
+    {
+      "name": "EstateAgent",
+      "version": "0.0.1",
+      "lang": "node",
+      "channel": "lease-channel",
+      "directory": "./chaincodes/chaincode-EstateAgent-node",
+      "endorsement": "OR('Org1MSP.member', 'Org2MSP.member')"
+    },
+    {
+      "name": "EstatePublish",
+      "version": "0.0.1",
+      "lang": "node",
+      "channel": "lease-channel",
+      "directory": "./chaincodes/chaincode-EstatePublish-node",
+      "endorsement": "OR('Org1MSP.member', 'Org2MSP.member', 'Org3MSP.member', 'Org4MSP.member')"
+    },
+    {
+      "name": "RentalAgreement",
+      "version": "0.0.1",
+      "lang": "node",
+      "channel": "lease-channel",
+      "directory": "./chaincodes/chaincode-RentalAgreement-node",
+      "endorsement": "OR('Org1MSP.member', 'Org3MSP.member')"
+    },
+    {
+      "name": "AccessControlManager",
+      "version": "0.0.1",
+      "lang": "node",
+      "channel": "acc-channel",
+      "directory": "./chaincodes/chaincode-AccessControlManager-node",
+      "endorsement": "OR('Org2MSP.member', 'Org4MSP.member')"
+    }
+  ]
+}

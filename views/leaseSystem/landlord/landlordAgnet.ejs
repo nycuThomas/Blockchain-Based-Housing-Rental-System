@@ -1,0 +1,273 @@
+<%- include('../partials/header'); %>
+
+    <body>
+        <!-- show house data and list agent -->
+
+        <div class="container mt-3">
+            <div style="margin-top: 10px">
+                <a href="/leaseSystem/landlord/manageEstate">back</a>
+            </div>
+            <div class="col-md-5 center-block" style="float: none; margin: auto">
+                <div>
+                    <h1 style="margin:auto" class="font-weight-bold">Entrust a Estate Agent</h2>
+                </div>
+                <div class="card mt-3">
+                    <div style="font-size: 1.5rem; font-weight: bold" class="card-header text-center">
+                        House Data
+                    </div>
+
+                    <div style="margin-top: 10px" class="text-center">
+                        <form>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Title</span>
+                                <input type="text" class="form-control" id="title" name="title"
+                                    value="<%=HouseData.title%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Owner Address</span>
+                                <input type="text" class="form-control" id="userAddress" name="userAddress"
+                                    value="<%=address%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">House Address</span>
+                                <input type="text" class="form-control" id="houseAddress" name="houseAddress"
+                                    value="<%=HouseData.houseAddress%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">House Area</span>
+                                <input type="text" class="form-control" value="<%=HouseData.area%>" readonly>
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Room Type</span>
+                                <select class="form-select" id="roomType" name="roomType" readonly>
+                                    <option selected value="<%=HouseData.type%>">
+                                        <%=HouseData.type%>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Describe</label>
+                                <input type="text" class="form-control" id="describe" name="describe"
+                                    value="<%=HouseData.describe%>" readonly>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-3">
+            <div class="col-md-5 card center-block" style="float: none; margin: auto">
+                <div style="font-size: 1.5rem; font-weight: bold" class="card-header text-center">
+                    Choose Estate Agent
+                </div>
+
+                <div>
+                    <label style="margin:auto" class="font-weight-bold">Choose a Entrustment Plan</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="option" id="Leasing" value="Leasing">
+                        <label class="form-check-label" for="Leasing">Only Agency Leasing</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="option" id="Escrow" value="Escrow">
+                        <label class="form-check-label" for="Escrow">Leasing and Escrow</label>
+                    </div>
+                </div>
+                <div class="card-header">
+                    <h4 style="margin:auto" class="font-weight-bold">Agent List</h4>
+                </div>
+                <table class="table table-hover table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <!-- <th scope="col">name</th> -->
+                            <th scope="col">address</th>
+                            <!-- <th scope="col">pubkey</th> -->
+                            <th scope="col">select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let index=0; index < agentList.length; index++) {%>
+                            <!-- <form action="" method="dialog"> -->
+                            <tr>
+                                <!-- <td scope="col">
+                                    <input class="form-control" type="text" id="name-< index %>"
+                                        name="name-< index %>" value="<agentList[index].name%>" readonly>
+                                </td> -->
+                                <td scope="col">
+                                    <input class="form-control" type="text" id="agentAddress-<%= index %>"
+                                        name="agentAddress-<%= index %>" value="<%=agentList[index].address%>" readonly>
+                                </td>
+                                <!-- <td scope="col" id="agentPubkey">
+                                        
+                                    </td> -->
+                                <td scope="col">
+                                    <button type="submit" class="btn btn-primary"
+                                        id="entrustSubmit-<%= index %>">entrust</button>
+                                </td>
+                            </tr>
+                            <!-- </form> -->
+                            <%} %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </body>
+
+    <script>
+        var identityManagerABI, personalIdentityABI;
+        var account;
+        var contract_address = '<%= contract_address %>';
+        const allAgentList = JSON.parse(
+            '<%- JSON.stringify(agentList) %>'
+        );
+
+        const preventMalleability = (sig, ecdsa) => {
+            const halfOrder = ecdsa.n.shrn(1);
+            if (sig.s.cmp(halfOrder) === 1) {
+                const bigNum = ecdsa.n;
+                sig.s = bigNum.sub(sig.s);
+            }
+            return sig;
+        };
+
+        function sign(privateKey, digest) {
+            const signKey = ecdsa.keyFromPrivate(privateKey, 'hex');
+            const sig = ecdsa.sign(Buffer.from(digest, 'hex'), signKey);
+            var halfOrderSig = preventMalleability(sig, ecdsa);
+            const signature = Buffer.from(halfOrderSig.toDER());
+            var signature_string = '';
+            for (var i = 0; i < signature.length; i++) {
+                signature_string += signature[i].toString();
+                signature_string += '/';
+            }
+            signature_string = signature_string.slice(0, -1);
+            return signature_string;
+        }
+
+        function ajaxAwait(url, data) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    dataType: 'json',
+                    data: data,
+                    success: function (res) {
+                        console.log('success');
+                        resolve(res);
+                    },
+                    fail: function (xhr, ajaxOptions, thrownError) {
+                        console.log('fail');
+                        reject(false);
+                    },
+                });
+            });
+        }
+
+        async function buildListener() {
+            var identityManagerInstance = new web3.eth.Contract(
+                identityManagerABI,
+                contract_address
+            );
+            var personalIdentityAddress = await identityManagerInstance.methods
+                .getAccessManagerAddress(account)
+                .call({ from: account });
+
+            var personalIdentityInstance = new web3.eth.Contract(
+                personalIdentityABI,
+                personalIdentityAddress
+            );
+            for (let index = 0; index < allAgentList.length; index++) {
+                $(`#entrustSubmit-${index}`).on('click', async function (e) {
+                    let userAddress = $("#userAddress").val();
+                    let houseAddress = $(`#houseAddress`).val();
+                    let agentAddress = $(`#agentAddress-${index}`).val();
+                    let type = "none";
+                    if ($("#Leasing").is(":checked")) {
+                        type = "Leasing";
+                    }
+                    if ($("#Escrow").is(":checked")) {
+                        type = "Escrow";
+                    }
+
+                    if (type == "none") {
+                        alert('you must choose an option.');
+                        return;
+                    }
+
+                    const agent = allAgentList.find(
+                        (rq) => rq.address === agentAddress
+                    )
+                    let pubkey = agent.pubkey;
+                    let response, result;
+                    response = await ajaxAwait(
+                        '/leaseSystem/landlord/entrustSubmit',
+                        {
+                            agentPubkey: pubkey,
+                            estateAddress: houseAddress,
+                            ownerAddress: userAddress,
+                            type: type
+                        }
+                    );
+                    console.log('response = ' + response.result);
+                    if (response.error) {
+                        return alert(`error :${response.result}`);
+                    }
+                    let encryptKey = await personalIdentityInstance.methods
+                        .getEncryptMaterial('HLFPrivateKey')
+                        .call({ from: account });
+                    let privateKey = await ethereum.request({
+                        method: 'eth_decrypt',
+                        params: [encryptKey, account],
+                    });
+                    let signature_string;
+                    signature_string = sign(privateKey, response.digest);
+                    response = await ajaxAwait(
+                        '/leaseSystem/proposalAndCreateCommit',
+                        { signature: signature_string, func: 'AddEstate' }
+                    );
+                    if (response.error) {
+                        return alert(`error :${response.result}`);
+                    }
+
+                    result = response.result;
+                    signature_string = sign(privateKey, response.commitDigest);
+                    response = await ajaxAwait('/leaseSystem/commitSend', {
+                        signature: signature_string,
+                        func: 'AddEstate'
+                    });
+                    if (response.error) {
+                        return alert(`error: ${response.result}`);
+                    }
+
+                    if (alert(`${result}`)) {
+                        window.location.reload();
+                    }
+                    window.location.reload();
+                });
+            }
+        }
+
+        async function main() {
+            let accounts = await web3.eth.getAccounts();
+            account = accounts[0];
+            identityManagerABI = await fetch(
+                '../../contracts/IdentityManager.json'
+            );
+            personalIdentityABI = await fetch(
+                '../../contracts/PersonalIdentity.json'
+            );
+            identityManagerABI = await identityManagerABI.json();
+            identityManagerABI = identityManagerABI.output.abi;
+            personalIdentityABI = await personalIdentityABI.json();
+            personalIdentityABI = personalIdentityABI.output.abi;
+
+            // console.log('identityManagerABI = ' + JSON.stringify(identityManagerABI));
+            // console.log('personalIdentityABI = ' + JSON.stringify(personalIdentityABI));
+
+            buildListener();
+        }
+
+        main();
+    </script>
+    <%- include('../partials/footer'); %>
